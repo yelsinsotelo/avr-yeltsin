@@ -1,0 +1,48 @@
+El dispositivo presenta un ADC de aproximación sucesiva de 10 bits.
+conectado a un multiplexor de 8 canales, que permiten ocho entradas de voltaje de terminacion unica 
+(es decir todos con la msma tierra)
+
+El ADC contine un circuito de muestre y retencion que asegura que el voltaje de entrada al ADC se mantengaa
+en un nivel constante durante la conversión.
+
+ AVCC no debe variar mucho en comparacion a Vcc +/- 0.3V
+
+(PRR.PRADC) debe escribirse en '0' para poder habilitar el ADC.
+El ADC convierte una tensión de entrada analógica en un valor digital de 10 bits mediante una aproximación sucesiva.
+El valor mínimo representa GND y el valor máximo representa el voltaje en el pin AREF menos 1 LSB.
+
+El canal de entrada analógica se selecciona escribiendo en los bits MUX en el registro ADCUX.MUX [3: 0] de Selección de Multiplexor ADC.
+
+así como GND y una referencia de voltaje de banda prohibida fija, se pueden seleccionar como entradas de terminación única para el ADC. 
+
+El ADC se habilita escribiendo un '1' en el bit de habilitación de ADC en el Registro de control y estado de ADC A (ADCSRA.ADEN)
+
+Las selecciones de referencia de voltaje y canal de entrada no tendrán efecto hasta que se establezca ADEN. El ADC no consume energía cuando se borra ADEN, 
+por lo que se recomienda apagar el ADC antes de ingresar a los modos de suspensión de ahorro de energía.
+
+El ADC genera un resultado de 10 bits que se presenta en los Registros de datos de ADC, ADCH y ADCL
+
+una vez que se lee ADCL, se bloquea el acceso ADC a los registros de datos. Esto significa que si se ha leído ADCL y se completa una segunda conversión antes de que se lea ADCH, ninguno de los registros se actualiza y el resultado de la segunda conversión se pierde. Cuando se lee ADCH, el acceso ADC al
+Los registros ADCH y ADCL se vuelven a habilitar.
+
+El ADC tiene su propia interrupción que se puede activar cuando se completa una conversión. Cuando se prohíbe el acceso ADC a los registros de datos entre la lectura de ADCH y ADCL, la interrupción se disparará incluso si se pierde el resultado.
+
+*******************************************************************************
+*              Iniciando una conversion                                       *
+*******************************************************************************
+
+1. primero se coloca el bit PRR.PRADC en 0 para activar el ADC.
+2. se pone en '1' el bit ADCSRA.ADSC bit de inicio de conversion.
+3. ADCS se mantendrá alto mientras la conversión esté en progreso, y se borrará por hardware cuando se complete la conversión. Si se selecciona un canal de datos diferente mientras una conversión está en progreso, el ADC terminará la conversión actual antes de realizar el cambio de canal.
+4. Alternativamente, varias fuentes pueden activar automáticamente una conversión. El disparo automático se habilita configurando el bit de habilitación del activador automático de ADC (ADCSRA.ADATE). La fuente de disparo se selecciona configurando los bits de Selección de activador de ADC en el Registro de control y estado de ADC (ADCSRB.ADTS).
+Consulte la descripción de ADCSRB.ADTS para obtener una lista de las fuentes de activación disponibles.
+5. Cuando se produce un borde positivo en la señal de disparo seleccionada, el preescalador ADC se reinicia y se inicia una conversión. Esto proporciona un método para iniciar conversiones a intervalos fijos.
+Si aún se establece la señal de activación cuando finaliza la conversión, no se iniciará una nueva conversión. Si se produce otro borde positivo en la señal de disparo durante la conversión, el borde se ignorará. Tenga en cuenta que se establecerá un indicador de interrupción incluso si la interrupción específica está desactivada o si se borra el bit Habilitación de interrupción global en el registro de estado del AVR (SREG.I). Por lo tanto, se puede activar una conversión sin causar una interrupción. Sin embargo, la bandera de interrupción
+debe borrarse para activar una nueva conversión en el siguiente evento de interrupción.
+
+
+
+
+*******************************************************************************
+*              Iniciando una conversion                                       *
+*******************************************************************************
