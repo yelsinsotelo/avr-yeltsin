@@ -41,8 +41,52 @@ Si aún se establece la señal de activación cuando finaliza la conversión, no
 debe borrarse para activar una nueva conversión en el siguiente evento de interrupción.
 
 
+*******************************************************************************
+*              Temporización de preescalamiento y conversión                  *
+*******************************************************************************
+Por defecto, los circuitos de aproximación sucesiva requieren una frecuencia de
+reloj de entrada entre 50 kHz y 200 kHz para obtener la máxima resolución.
+Si se necesita una resolución inferior a 10 bits,la frecuencia del reloj de 
+entrada al ADC puede ser superior a 200 kHz para obtener una frecuencia de
+muestreo más alta.
+
+El módulo ADC contiene un preescalador, que genera una frecuencia de reloj ADC aceptable 
+desde cualquier frecuencia de CPU por encima de 100 kHz. La preescalada es seleccionada por 
+los bits de selección del preescalador ADC en el registro de control y estado ADC (ADCSRA.ADPS).
+El preescalador comienza a contar desde el momento en que se enciende el ADC escribiendo 
+el bit de activación de ADC ADCSRA.ADEN en '1'. El preescalador sigue funcionando mientras ADEN = 1,
+y se reinicia continuamente cuando ADEN = 0.
+
+Al iniciar una conversión de terminación única escribiendo un '1' en el bit de conversión de inicio de ADC (ADCSRA.ADSC), 
+la conversión comienza en el siguiente flanco ascendente del ciclo de reloj de ADC.
+
+Una conversión normal lleva 13 ciclos de reloj ADC. La primera conversión después de encender el ADC
+(es decir, ADCSRA.ADEN se escribe en '1') toma 25 ciclos de reloj de ADC para inicializar los circuitos analógicos.
+
 
 
 *******************************************************************************
-*              Iniciando una conversion                                       *
+*              Canales de entrada ADC                                         *
 *******************************************************************************
+
+En el modo de conversión única, siempre seleccione el canal antes de comenzar la conversión.
+La selección de canal puede cambiarse un ciclo de reloj de ADC después de escribir uno a ADSC. 
+Sin embargo, el método más simple es esperar a que se complete la conversión antes de cambiar la selección del canal.
+
+
+
+*******************************************************************************
+*              Resulado del ADC                                               *
+*******************************************************************************
+
+Una vez completada la conversión, ADCSRA.ADIF está configurado), el resultado de
+la conversión se puede encontrar en los Registros de resultados de ADC (ADCL, ADCH).
+
+Vin=Vref*ADC/1024
+
+*******************************************************************************
+*       Descripción de registros                                              *
+*******************************************************************************
+
+
+
