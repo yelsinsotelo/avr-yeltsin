@@ -1,0 +1,7 @@
+En electrónica, un perro guardián (en inglés watchdog) es un mecanismo de seguridad que provoca 
+un reset del sistema en caso de que éste se haya bloqueado.
+Consiste en un temporizador que irá continuamente decrementando un contador,
+inicialmente con un valor relativamente alto. Cuando este contador llegue a cero, se reiniciará el sistema,
+así que se debe diseñar una subrutina en el programa de manera que refresque o reinicie al perro guardián 
+antes de que provoque el reset. Si el programa falla o se bloquea, al no actualizar el contador del
+perro guardián a su valor de inicio, éste llegará a decrementarse hasta cero y se reiniciará el sistema.
