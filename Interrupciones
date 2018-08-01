@@ -1,0 +1,7 @@
+Interrupciones en el atmega328P
+-----------------------------------------------
+               INTERRUPCION EXTERNA
+-----------------------------------------------
+Tenemos dos tipos de puestos (pines) para trabajar interrupciones externas.
+INTx y los PCINTx ambos tiene modo de operación parecido pero manteniendo grandes diferencias:
+Para el atmega328P
