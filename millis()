@@ -1,0 +1,49 @@
+Para poder configurar el TIMER1 COMO LA FUNCIÓN QUE DEVUELVA EL TIEMPO DE EJECUCIÓN.
+Entendamos el funcionamiento del TIMER1: 
+Es un temporizador/contador de 16 bits.
+2 salidads independientes para comparación.
+doble buffer en salidads de comparación
+
+Descripción: 
+TCNT1: registro temporizador/contado
+OCR1A/B: Registro de comparación de salid
+ICR1: Registro de captura de entrada
+Todos estos registros son de 16 bits cada uno.
+
+TCCR1A/B/C : Registro de control del temporizador/contador, son de 8 bits y no tiene restricción de acceso al CPU
+Las solicitudes de interrupción son visibles en el Registro de banderas de interrupción del temporizador (TIFR1).
+Todas las interrupciones se enmascaran individualmente con el registro de máscara de interrupción del temporizador (TIMSK1).
+TIFR1 y TIMSK1 no se muestran en la figura.
+
+Puede sincronizarse internamente con un prescaler o se le puede colocar un reloj externo. Esto se configura en el Clock Select.
+El temporizador esta deshabilitado mientras no se selecciones ninguna fuente de reloj, la salida del clock select se conoce 
+como reloj del temporizador.
+
+El doble buffer del registro de comparación OCR1A/B son comparados con el registro contador TCNT1, esta comparación puede ser usada
+para la generación de formas de onda PWM.
+
+MODO DE USO MILLIS() retorno de tiempo de ejecución
+1.definimos la frecuencia con la que se trabajará, se prefiere usar el oscilador comun con prescaler a desición.
+prescaleer: 1024
+2. definimos que deseamos que retorne, segundos, milisegundos.....
+3.  el valor de comparación ----> ctc_match_overflow.= (F_CPU/1000)/1024 para millis() ---->
+esto indica ctc_match_overflow*(Frec_t/c) = # seg que retornará >>> #seg=10^-3sego=1 ms;
+4.inicializar la función millis();
+activamso el bit de clean timer/counter----> WGM12
+INDICAMOS EL PRESCALER: CS1[2:0] PARA EL PRESCALER=1024 SEGUN INDICA EL DATASHEET
+CARGAMOS EL REGISTRO DE COMPARACIÓN DE SALIDA OCR1A, CON EL CUAL SE COMPARA CNSTANTEMENTE EL REGISTRO TEMPORIZADOR CONTADOR.
+habilitamos la interrucpcion por evento de comparación CON EL BIT OCIE1A EN REL REGISTRO TIMSK1;
+LUEGO HABILITAMOS LAS INTERRUPCIONES GLOBALES sei();
+
+se emplea las macros siguientes: ATOMIC_BLOCK(ATOMIC_FORCEON)
+**EL BLOCKE CREADO GARANTIZA QUE SE EJECUTARÁ AUTOMÁTICAMENTE, NI BIEN ENTRAS AL BLOQUE ESTE DESAHIBILITA EL REGISTRO 
+DE INTERRUPCIÓN GLOBA, Y PUEDE SER ACTIVADA AL SALIR DEL BLOQUE.
+SE PERIMITE PARAMETRO MACRO ATOMIC_FORCEON EL CUAL FUERZA LA ACTIVACIÓN DE LAS INTERRUPCIONES GLOBALES JUSTO LUEGO 
+DE TERMINAR LA EJECUCIÓN DEL BLOQUE.	
+
+CONTRUIMOS LA FUNCIÓN MILLIS
+usamos la etiqueta anterior y dentro de ella indicamos que el valor de la variable que va aumentando en cada
+evento de interrupcion se almacene y pueda ser retornada para su visualización 
+
+RECORDAR QUE LUEGO DE INICIALIZAR EL TIMER, NOS CORRESPONDE ACTIVAR LAS INTERRUPCIONES GLOBALES CON EL COMANDO 
+sei();
